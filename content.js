@@ -14,13 +14,28 @@
     }
   });
 
-  const observer = new MutationObserver(applyTitle);
+  // Only observe if head exists
+  if (document.head) {
+    const observer = new MutationObserver(applyTitle);
+    observer.observe(document.head, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  }
 
-  observer.observe(document.head, {
-    childList: true,
-    subtree: true,
-    characterData: true
-  });
-
+  // Fallback for SPA pages or dynamically added head
+  const headCheckInterval = setInterval(() => {
+    if (!document.head) return;
+    clearInterval(headCheckInterval);
+    const observer = new MutationObserver(applyTitle);
+    observer.observe(document.head, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  }, 100);
+  
+  // Ensure interval still reapplies title
   setInterval(applyTitle, 1000);
 })();
